@@ -251,4 +251,14 @@ describe("Option methods", () => {
       expect(e[0].transpose()).toEqual(e[1]);
     }
   });
+
+  test("equal", () => {
+    [
+      [Ok(2).equal(Ok(2)), true],
+      [Ok(Some(3)).equal(Ok(Some(3)), true), true],
+      [Ok(Some({ a: 1 })).equal(Ok(Some({ a: 1 })), true), true],
+    ].map(e => {
+      expect(e[0]).toBe(e[1]);
+    });
+  });
 });

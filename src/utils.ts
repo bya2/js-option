@@ -10,7 +10,7 @@ const isEqual = <T = any>(a: T, b: T, deep: boolean): boolean => {
   }
 };
 
-const compare = <T = any>(a: T, b: T, deep: boolean): boolean => {
+export const compare = <T = any>(a: T, b: T, deep: boolean): boolean => {
   if ((a instanceof OptionSome && b instanceof OptionSome) || (a instanceof ResultOk && b instanceof ResultOk)) {
     return compare(a.unwrap(), b.unwrap(), deep);
   }

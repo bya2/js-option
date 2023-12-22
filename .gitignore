@@ -13,3 +13,4 @@
 .pnp.*
 
 config/*
+coverage/*

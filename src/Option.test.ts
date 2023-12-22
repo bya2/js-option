@@ -142,4 +142,16 @@ describe("Option methods", () => {
     x = None;
     expect(x.transpose()).toEqual(Ok(x));
   });
+
+  test("equal", () => {
+    const a = { a: 1 };
+
+    [
+      [Some(3).equal(Some(3)), true],
+      [Some(Ok(2)).equal(Some(Ok(2)), true), true],
+      [Some(a).equal(Some({ a: 2 }), true), false],
+    ].map(e => {
+      expect(e[0]).toBe(e[1]);
+    });
+  });
 });

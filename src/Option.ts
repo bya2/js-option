@@ -1,4 +1,5 @@
 import { Result, ResultOk, ResultErr, Ok, Err } from "./Result";
+import { compare } from "./utils";
 import { UnwrapFailed, UnreachableCodeExecuted } from "./error";
 
 export interface Option<T> {
@@ -51,6 +52,8 @@ export interface Option<T> {
   zipWith<U, R>(other: Option<U>, f: (t: T, u: U) => R): Option<R>;
 
   transpose<E>(): Result<Option<T>, E>;
+
+  equal(other: Option<T>, deep?: boolean): boolean;
 }
 
 export class OptionSome<T> implements Option<T> {
@@ -167,6 +170,10 @@ export class OptionSome<T> implements Option<T> {
 
     UnreachableCodeExecuted();
   }
+
+  equal(other: Option<T>, deep: boolean = false): boolean {
+    return other.isSome() && compare(this.inner, other.unwrap(), deep);
+  }
 }
 
 export class OptionNone<T = any> implements Option<T> {
@@ -269,6 +276,10 @@ export class OptionNone<T = any> implements Option<T> {
 
   transpose<E>(): Result<Option<T>, E> {
     return Ok(None);
+  }
+
+  equal(other: Option<T>, deep: boolean): boolean {
+    return other.isNone();
   }
 }
 
