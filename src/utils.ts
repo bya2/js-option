@@ -1,14 +1,26 @@
 import _isEqual from "lodash.isequal";
-import { None, OptionSome, Some } from "./Option";
-import { ResultOk, ResultErr, Ok, Err } from "./Result";
+import { OptionSome, OptionNone, Some, None, Option } from "./Option";
+import { ResultOk, ResultErr, Ok, Err, Result } from "./Result";
 import { UnreachableCodeExecuted } from "./error";
 
 export const nope = () => {};
 
+/**
+ * Util
+ * @param sth
+ * @returns
+ */
 const getTag = (sth: any): string => {
   return Object.prototype.toString.call(sth).slice(8, -1);
 };
 
+/**
+ * Util
+ * @param a
+ * @param b
+ * @param deep
+ * @returns
+ */
 const isEqual = <T = any>(a: T, b: T, deep: boolean): boolean => {
   if (deep) {
     return _isEqual(a, b);
@@ -17,6 +29,13 @@ const isEqual = <T = any>(a: T, b: T, deep: boolean): boolean => {
   }
 };
 
+/**
+ * Helper
+ * @param a
+ * @param b
+ * @param deep
+ * @returns
+ */
 export const compare = <T = any>(a: T, b: T, deep: boolean = false): boolean => {
   if ((a instanceof OptionSome && b instanceof OptionSome) || (a instanceof ResultOk && b instanceof ResultOk)) {
     return compare(a.unwrap(), b.unwrap(), deep);
@@ -29,8 +48,14 @@ export const compare = <T = any>(a: T, b: T, deep: boolean = false): boolean => 
   return isEqual(a, b, deep);
 };
 
-const matchObject = <T extends { [key: string]: any } = any>(value: T, matcher: T, deep: boolean): boolean => {
-  return Object.keys(matcher).every(p => isMatch(value[p], matcher[p], deep));
+const matchJsType = <T>(a: T, b: T) => {
+  return [Number, String, Boolean, Function, Date, Array, RegExp, Map, WeakMap, Set, WeakSet, Symbol, Error, Object].some(
+    E => a instanceof E && b === E,
+  );
+};
+
+const matchObject = <T extends { [key: string]: any } = any>(objA: T, matcher: T, deep: boolean): boolean => {
+  return Object.keys(matcher).every(p => isMatch(objA[p], matcher[p], deep));
 };
 
 const isMatch = <T>(a: T, b: T, deep: boolean): boolean => {
@@ -58,9 +83,7 @@ const isMatch = <T>(a: T, b: T, deep: boolean): boolean => {
   }
 
   // 자바스크립트 타입 매칭
-  if (
-    [Number, String, Boolean, Function, Date, Array, RegExp, Map, WeakMap, Set, WeakSet, Symbol, Error, Object].some(E => a instanceof E && b === E)
-  ) {
+  if (matchJsType(a, b)) {
     return true;
   }
 
@@ -87,22 +110,38 @@ const isMatch = <T>(a: T, b: T, deep: boolean): boolean => {
   return false;
 };
 
+const armMap = <T>(x: T, cb: Function) => {
+  if (x instanceof ResultOk || x instanceof OptionSome) return cb(x.unwrap());
+  if (x instanceof ResultErr) return cb(x.unwrapErr());
+};
+
+/**
+ * Helper
+ * @param scrutinee
+ * @param matchArms
+ * @param deep
+ * @returns
+ */
 export const match = <T = any, U = any>(
   scrutinee: T,
-  patterns: IterableIterator<(() => U) | [any, U | ((x?: any) => U)]>,
+  matchArms: IterableIterator<((x?: T) => U) | [any, U | ((x?: any) => U)]>,
   deep: boolean = false,
 ): U => {
-  for (const arm of patterns) {
-    if (arm instanceof Function) return arm();
+  for (const arm of matchArms) {
+    if (arm instanceof Function) {
+      if (scrutinee instanceof ResultOk || scrutinee instanceof OptionSome) return arm(scrutinee.unwrap());
+      if (scrutinee instanceof ResultErr) return arm(scrutinee.unwrapErr());
+      return arm(scrutinee);
+    }
 
     if (arm instanceof Array) {
-      const [b0, b1] = arm;
-      if (isMatch(scrutinee, b0, deep)) {
-        if (b1 instanceof Function) {
-          if (scrutinee instanceof ResultOk || scrutinee instanceof OptionSome) return b1(scrutinee.unwrap());
-          if (scrutinee instanceof ResultErr) return b1(scrutinee.unwrapErr());
+      const [arm0, arm1] = arm;
+      if (isMatch(scrutinee, arm0, deep)) {
+        if (arm1 instanceof Function) {
+          if (scrutinee instanceof ResultOk || scrutinee instanceof OptionSome) return arm1(scrutinee.unwrap());
+          if (scrutinee instanceof ResultErr) return arm1(scrutinee.unwrapErr());
         } else {
-          return b1;
+          return arm1;
         }
       }
     }
