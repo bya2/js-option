@@ -8,6 +8,8 @@
 .yarn/cache
 .pnp.*
 
+yarn.lock
+
 # DIST
 dist
 esm
