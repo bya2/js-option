@@ -1,43 +1,22 @@
 {
+  "extends": "../config/tsconfig.base.json",
   "compilerOptions": {
+    "rootDir": ".",
+
     /* 언어 및 환경 */
-    "target": "ES6" /* 사용할 특정 ECMAScript 버전(타입스크립트파일을 어떤 버전의 자바스크립트로 변경할 지 지정) */,
+    "target": "ES6",
 
     /* 모듈 */
-    "module": "CommonJS" /* 생성할 모듈 코드를 지정(컴파일된 결과물에서 자바스크립트 파일간 import 문법을 구현할 때의 문법을 지정) */,
-    "moduleResolution": "node" /* TypeScript가 지정된 모듈 지정자에서 파일을 조회하는 방법을 지정 */,
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "baseUrl": "./src",
     "paths": {
       "@": ["./"],
       "@/*": ["./*"]
     },
-    "allowUmdGlobalAccess": true /* 모듈에서 UMD 전역에 액세스할 수 있도록 허용 */,
-    "resolveJsonModule": true /* Enable importing .json files */,
-
-    /* 자바스크립트 지원 */
-    "allowJs": true /* 자바스크립트 파일 컴파일 허용 여부 */,
-    "checkJs": true /* .js 파일의 오류 검사 여부 */,
 
     /* Emit */
-    "outDir": "dist" /* 내보낸 모든 파일의 출력 폴더를 지정 */,
-    "sourceMap": true /* 내보낸 자바스크립트 파일에 대한 소스 맵 파일을 생성 */,
-    "declaration": true /* 프로젝트의 타입스크립트 및 자바스크립트 파일에서 .d.ts 파일을 생성 */,
-    "declarationMap": true /* d.ts 파일에 대한 소스맵을 생성 */,
-    "newLine": "lf" /* end of line sequence 설정(기본적으로 플랫폼에 따라 "crlf" (windows) or "lf" (unix) 가 설정) */,
-    "listEmittedFiles": false /* 컴파일된 결과 파일들 이름을 터미널에 출력 */,
-    "listFiles": false /* 컴파일된 파일들 이름을 터미널에 출력 */,
-
-    /* Interop 제약 조건 */
-    "isolatedModules": true /* 다른 가져오기에 의존하지 않고 각 파일을 안전하게 트랜스파일링할 수 있는지 확인(프로젝트 내에 모든 각각의 소스 코드 파일을 모듈로 만들기를 강제) */,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true /* CommonJS 모듈 가져오기를 쉽게 지원하기 위해 추가 JavaScript를 방출. 이렇게 하면 유형 호환성을 위해 `allowSyntheticDefaultImports`가 활성화 */,
-
-    /* 규칙 */
-    "strict": true,
-
-    /* 완성도 */
-    "skipDefaultLibCheck": true /* TypeScript에 포함된 .d.ts 파일의 유형 검사를 건너뛰기 */,
-    "skipLibCheck": true /* 모든 .d.ts 파일 확인을 건너뛰기 */
+    "outDir": "dist"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts"]
