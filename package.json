@@ -1,6 +1,6 @@
 {
   "name": "@bya2/js-option",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Rust의 기능인 `Option`를 Javascript에서 사용합니다.",
   "author": "Jinhyeong Lee <byaa1972@gmail.com>",
   "repository": "https://github.com/bya2/js-option.git",
@@ -31,9 +31,7 @@
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
     "test:coverage": "jest --coverage",
-    "docs": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
-    "compile": "tsc",
-    "build": "tsup src/index.ts --dts --format esm,cjs --minify"
+    "build": "tsup"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
