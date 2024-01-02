@@ -5,7 +5,7 @@ export interface Option<T> {
   /**
    * 옵션이 [`Some`] 값인 경우 `true`를 반환합니다.
    */
-  isSome(): this is SOME<T>;
+  isSome(): this is SomeType<T>;
 
   /**
    * 옵션이 [`Some`]이고 그 안의 값이 '술어'와 일치하는 경우 `true`를 반환합니다.
@@ -16,7 +16,7 @@ export interface Option<T> {
   /**
    * 옵션이 [`None`] 값인 경우 `true`를 반환합니다.
    */
-  isNone(): this is NONE;
+  isNone(): this is NoneType;
 
   /**
    * 포함된 [`Some`] 값을 반환합니다.
@@ -120,7 +120,7 @@ export interface Option<T> {
    * `this`, `optb` 중 정확히 하나가 [`Some`]이면 [`Some`]를 반환하고, 그렇지 않으면 [`None`]을 반환합니다.
    * @param optb
    */
-  xor<O extends Option<any>>(optb: O): this | O | NONE;
+  xor<O extends Option<any>>(optb: O): this | O | NoneType;
 
   /**
    * 다른 `Option`으로 `this`을 압축합니다.
@@ -147,18 +147,18 @@ export interface Option<T> {
   transpose<E>(): Result<Option<T>, E>;
 }
 
-export class SOME<T> implements Option<T> {
+export class SomeType<T> implements Option<T> {
   private inner: T;
 
   private constructor(value: T) {
     this.inner = value;
   }
 
-  static Some<T>(value: T): SOME<T> {
-    return new SOME(value);
+  static Some<T>(value: T): SomeType<T> {
+    return new SomeType(value);
   }
 
-  public isSome(): this is SOME<T>;
+  public isSome(): this is SomeType<T>;
   public isSome(): true {
     return true;
   }
@@ -191,7 +191,7 @@ export class SOME<T> implements Option<T> {
     return this.inner;
   }
 
-  public map<U>(op: (value: T) => U): SOME<U> {
+  public map<U>(op: (value: T) => U): SomeType<U> {
     return Some(op(this.inner));
   }
 
@@ -224,7 +224,7 @@ export class SOME<T> implements Option<T> {
     return f(this.inner);
   }
 
-  public filter(predicate: (value: T) => boolean): this | NONE {
+  public filter(predicate: (value: T) => boolean): this | NoneType {
     if (predicate(this.inner)) return this;
     return None;
   }
@@ -237,32 +237,32 @@ export class SOME<T> implements Option<T> {
     return this;
   }
 
-  public xor<U>(optb: SOME<U>): NONE;
-  public xor(optb: NONE): this;
-  public xor<O extends Option<any>>(optb: O): this | NONE {
+  public xor<U>(optb: SomeType<U>): NoneType;
+  public xor(optb: NoneType): this;
+  public xor<O extends Option<any>>(optb: O): this | NoneType {
     return optb.isNone() ? this : None;
   }
 
-  public zip<U>(other: SOME<U>): SOME<[T, U]>;
-  public zip<U>(other: NONE): NONE;
+  public zip<U>(other: SomeType<U>): SomeType<[T, U]>;
+  public zip<U>(other: NoneType): NoneType;
   public zip<U>(other: Option<U>): Option<[T, U]> {
     return other.isSome() ? Some([this.inner, other.unwrap()] as [T, U]) : None;
   }
 
-  public zipWith<U, R>(other: SOME<U>, f: (t: T, u: U) => R): SOME<R>;
-  public zipWith<U, R>(other: NONE, f: (t: T, u: any) => any): NONE;
+  public zipWith<U, R>(other: SomeType<U>, f: (t: T, u: U) => R): SomeType<R>;
+  public zipWith<U, R>(other: NoneType, f: (t: T, u: any) => any): NoneType;
   public zipWith<U, R>(other: Option<U>, f: (t: T, u: U) => R): Option<R> {
     return other.isSome() ? Some(f(this.inner, other.unwrap())) : None;
   }
 
-  public transpose<E>(): Result<SOME<T>, E> {
+  public transpose<E>(): Result<SomeType<T>, E> {
     if (this.inner instanceof Success) return Ok(Some(this.inner.unwrap()));
     if (this.inner instanceof Failure) return this.inner;
     unreachableUnchecked();
   }
 }
 
-export class NONE implements Option<never> {
+export class NoneType implements Option<never> {
   private constructor() {}
 
   static None = new this();
@@ -275,7 +275,7 @@ export class NONE implements Option<never> {
     return false;
   }
 
-  public isNone(): this is NONE;
+  public isNone(): this is NoneType;
   public isNone(): true {
     return true;
   }
@@ -300,7 +300,7 @@ export class NONE implements Option<never> {
     unreachableUnchecked();
   }
 
-  public map<U>(op: (value: never) => U): NONE {
+  public map<U>(op: (value: never) => U): NoneType {
     return None;
   }
 
@@ -332,7 +332,7 @@ export class NONE implements Option<never> {
     return this;
   }
 
-  public filter(predicate: (value: never) => boolean): NONE {
+  public filter(predicate: (value: never) => boolean): NoneType {
     return None;
   }
 
@@ -344,25 +344,25 @@ export class NONE implements Option<never> {
     return f();
   }
 
-  public xor<U>(optb: SOME<U>): SOME<U>;
-  public xor(optb: NONE): NONE;
-  public xor<O extends Option<any>>(optb: O): O | NONE {
+  public xor<U>(optb: SomeType<U>): SomeType<U>;
+  public xor(optb: NoneType): NoneType;
+  public xor<O extends Option<any>>(optb: O): O | NoneType {
     return optb.isSome() ? optb : None;
   }
 
-  public zip(other: Option<any>): NONE {
+  public zip(other: Option<any>): NoneType {
     return None;
   }
 
-  public zipWith(other: Option<any>, f: (t: never, u: any) => any): NONE {
+  public zipWith(other: Option<any>, f: (t: never, u: any) => any): NoneType {
     return None;
   }
 
-  public transpose<E>(): Result<NONE, E> {
+  public transpose<E>(): Result<NoneType, E> {
     return Ok(None);
   }
 }
 
-export const Some = SOME.Some;
+export const Some = SomeType.Some;
 
-export const None = NONE.None;
+export const None = NoneType.None;

@@ -1,4 +1,4 @@
-import { Option, SOME, NONE, Some, None } from "./Option";
+import { Option, Some, None } from "./Option";
 import { Ok, Err } from "./Result";
 
 const nope = () => {};
