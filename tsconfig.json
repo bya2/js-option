@@ -2,20 +2,9 @@
   "extends": "../config/tsconfig.base.json",
   "compilerOptions": {
     "rootDir": ".",
-
-    /* 언어 및 환경 */
     "target": "ES6",
-
-    /* 모듈 */
     "module": "CommonJS",
     "moduleResolution": "node",
-    "baseUrl": "./src",
-    "paths": {
-      "@": ["./"],
-      "@/*": ["./*"]
-    },
-
-    /* Emit */
     "outDir": "dist"
   },
   "include": ["src/**/*.ts"],
