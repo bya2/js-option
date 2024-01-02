@@ -1,5 +1,5 @@
 import { Option, Some, None } from "./Option";
-import { Ok, Err } from "./Result";
+import { Ok, Err } from "@bya2/js-result";
 
 const nope = () => {};
 const returnT = () => true;

@@ -1,4 +1,4 @@
-import { Result, Success, Failure, Ok, Err } from "./Result";
+import { Result, OkType, ErrType, Ok, Err } from "@bya2/js-result";
 import { unwrapFailed, unreachableUnchecked, expectFailed } from "./error";
 
 export interface Option<T> {
@@ -208,11 +208,11 @@ export class SomeType<T> implements Option<T> {
     return op(this.inner);
   }
 
-  public okOr<E>(err: E): Success<T> {
+  public okOr<E>(err: E): OkType<T> {
     return Ok(this.inner);
   }
 
-  public okOrElse<E>(err: () => E): Success<T> {
+  public okOrElse<E>(err: () => E): OkType<T> {
     return Ok(this.inner);
   }
 
@@ -256,8 +256,8 @@ export class SomeType<T> implements Option<T> {
   }
 
   public transpose<E>(): Result<SomeType<T>, E> {
-    if (this.inner instanceof Success) return Ok(Some(this.inner.unwrap()));
-    if (this.inner instanceof Failure) return this.inner;
+    if (this.inner instanceof OkType) return Ok(Some(this.inner.unwrap()));
+    if (this.inner instanceof ErrType) return this.inner;
     unreachableUnchecked();
   }
 }
@@ -316,11 +316,11 @@ export class NoneType implements Option<never> {
     return fn();
   }
 
-  public okOr<E>(err: E): Failure<E> {
+  public okOr<E>(err: E): ErrType<E> {
     return Err(err);
   }
 
-  public okOrElse<E>(err: () => E): Failure<E> {
+  public okOrElse<E>(err: () => E): ErrType<E> {
     return Err(err());
   }
 
