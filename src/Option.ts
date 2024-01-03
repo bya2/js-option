@@ -1,4 +1,5 @@
 import { Result, OkType, ErrType, Ok, Err } from "@bya2/js-result";
+import { compare } from "./helper";
 import { unwrapFailed, unreachableUnchecked, expectFailed } from "./error";
 
 export interface Option<T> {
@@ -145,6 +146,12 @@ export interface Option<T> {
    * [`Result`]의 `Option`을 `Option`의 [`Result`]로 변환합니다.
    */
   transpose<E>(): Result<Option<T>, E>;
+
+  /**
+   * `this`와 다른 `Option`을 비교합니다.
+   * @param other
+   */
+  equal(other: Option<T>, deep?: boolean): boolean;
 }
 
 export class SomeType<T> implements Option<T> {
@@ -158,8 +165,7 @@ export class SomeType<T> implements Option<T> {
     return new SomeType(value);
   }
 
-  public isSome(): this is SomeType<T>;
-  public isSome(): true {
+  public isSome(): this is SomeType<T> {
     return true;
   }
 
@@ -260,6 +266,10 @@ export class SomeType<T> implements Option<T> {
     if (this.inner instanceof ErrType) return this.inner;
     unreachableUnchecked();
   }
+
+  public equal(other: Option<T>, deep = false): boolean {
+    return compare(this.unwrap(), other.unwrap(), deep);
+  }
 }
 
 export class NoneType implements Option<never> {
@@ -275,8 +285,7 @@ export class NoneType implements Option<never> {
     return false;
   }
 
-  public isNone(): this is NoneType;
-  public isNone(): true {
+  public isNone(): this is NoneType {
     return true;
   }
 
@@ -360,6 +369,10 @@ export class NoneType implements Option<never> {
 
   public transpose<E>(): Result<NoneType, E> {
     return Ok(None);
+  }
+
+  public equal<T>(other: Option<T>, deep?: boolean): boolean {
+    return other.isNone();
   }
 }
 
