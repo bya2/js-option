@@ -28,7 +28,7 @@ const config = {
   coverageProvider: "v8",
 
   // # Verbose
-  verbose: false,
+  verbose: true,
 
   // # ETC
   errorOnDeprecated: false, // 더 이상 사용되지 않는 API를 호출하면 오류 메시지가 표시
