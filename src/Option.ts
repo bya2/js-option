@@ -268,7 +268,7 @@ export class SomeType<T> implements Option<T> {
   }
 
   public equal(other: Option<T>, deep = false): boolean {
-    return compare(this.unwrap(), other.unwrap(), deep);
+    return other.isSome() && compare(this.unwrap(), other.unwrap(), deep);
   }
 }
 
