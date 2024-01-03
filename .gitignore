@@ -8,8 +8,6 @@
 .yarn/cache
 .pnp.*
 
-yarn.lock
-
 # DIST
 dist
 esm
@@ -20,7 +18,3 @@ cmd
 # ETC
 *.log
 coverage
-
-# TEMP
-*Result*.ts
-
