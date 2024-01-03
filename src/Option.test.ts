@@ -31,6 +31,7 @@ type T = readonly [
   "zip",
   "zipWith",
   "transpose",
+  "equal",
 ];
 
 const m: T = [
@@ -57,6 +58,7 @@ const m: T = [
   "zip",
   "zipWith",
   "transpose",
+  "equal",
 ];
 
 const a = m[0];
@@ -386,5 +388,20 @@ describe(".transpose", () => {
 
   test("None: OK(None)을 반환", () => {
     expect(None[method]()).toEqual(Ok(None));
+  });
+});
+
+describe(".equal", () => {
+  const method = m[23];
+
+  test("Some: 내부의 값을 비교하고 boolean을 반환", () => {
+    expect(Some(1)[method](Some(1))).toBe(true);
+    expect(Some(Ok(1))[method](Some(Ok(2)))).toBe(false);
+    expect(Some(Err(2))[method](Some(Err(2)))).toBe(true);
+  });
+
+  test("None: 다른 Option이 None이면 true, 아니면 false", () => {
+    expect(None[method](None)).toBe(true);
+    expect(None[method](Some(1))).toBe(false);
   });
 });
