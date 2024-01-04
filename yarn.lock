@@ -412,7 +412,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@bya2/js-option@workspace:."
   dependencies:
-    "@bya2/js-result": "npm:^1.0.6"
+    "@bya2/js-result": "npm:^1.1.0"
     "@types/jest": "npm:^29.5.11"
     "@types/lodash.isequal": "npm:^4"
     jest: "npm:^29.7.0"
@@ -424,12 +424,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@bya2/js-result@npm:^1.0.6":
-  version: 1.0.6
-  resolution: "@bya2/js-result@npm:1.0.6"
+"@bya2/js-result@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@bya2/js-result@npm:1.1.0"
   dependencies:
     "@bya2/js-option": "npm:^1.0.7"
-  checksum: 6c9cb79b327fa505ddae9a35231284abba0819f8202bdc407d4fab835e5bd6c89dcdb845d24ef046d76558d493d0e90df594aa05ca55dbfa3bc825acd1798795
+    lodash.isequal: "npm:^4.5.0"
+  checksum: 35815e2944ec8d2b224573c2d77e3f8f0e06fc9cd1b43f0c1f0f36f3f4acc072d0e055bcda76af6cb3551072ded16834e9fa341dc837ca57d36957bedaabe20e
   languageName: node
   linkType: hard
 
