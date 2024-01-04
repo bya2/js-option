@@ -319,7 +319,7 @@ describe(".or", () => {
 describe(".orElse", () => {
   test("Some: this를 반환", () => {
     const some = Some(1);
-    expect(some.orElse(() => Some(""))).toBe(some);
+    expect(some.orElse(() => Some(2))).toBe(some);
   });
 
   test("None: 인수(Option)을 반환", () => {

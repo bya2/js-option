@@ -91,13 +91,13 @@ export interface Option<T> {
    * 옵션이 [`None`]이면 [`None`]을 반환하고, 그렇지 않으면 `optb`를 반환합니다.
    * @param optb
    */
-  and<O extends Option<any>>(optb: O): O | this;
+  and<U>(optb: Option<U>): Option<U> | this;
 
   /**
    * 옵션이 [`None`]이면 [`None`]을 반환하고, 그렇지 않으면 래핑된 값으로 `f`를 호출하고 결과를 반환합니다.
    * @param f
    */
-  andThen<O extends Option<any>>(f: (value: T) => O): O | this;
+  andThen<U>(f: (value: T) => Option<U>): Option<U> | this;
 
   /**
    * 옵션이 [`None`]이면 [`None`]을 반환하고, 그렇지 않으면 래핑된 값으로 `predicate`를 호출하고 반환합니다.
@@ -109,19 +109,19 @@ export interface Option<T> {
    * 옵션에 값이 포함되어 있으면 `this`을 반환하고, 그렇지 않으면 `optb`를 반환합니다.
    * @param optb
    */
-  or<O extends Option<any>>(optb: O): this | O;
+  or(optb: Option<T>): Option<T>;
 
   /**
    * 옵션에 값이 포함되어 있으면 `this`을 반환하고, 그렇지 않으면 `f`를 호출하여 결과를 반환합니다.
    * @param f
    */
-  orElse<O extends Option<any>>(f: () => O): this | O;
+  orElse(f: () => Option<T>): Option<T>;
 
   /**
    * `this`, `optb` 중 정확히 하나가 [`Some`]이면 [`Some`]를 반환하고, 그렇지 않으면 [`None`]을 반환합니다.
    * @param optb
    */
-  xor<O extends Option<any>>(optb: O): this | O | NoneType;
+  xor(optb: Option<T>): Option<T>;
 
   /**
    * 다른 `Option`으로 `this`을 압축합니다.
@@ -214,38 +214,42 @@ export class SomeType<T> implements Option<T> {
     return op(this.inner);
   }
 
-  public okOr<E>(err: E): OkType<T> {
+  public okOr(err: any): OkType<T> {
     return Ok(this.inner);
   }
 
-  public okOrElse<E>(err: () => E): OkType<T> {
+  public okOrElse(err: () => any): OkType<T> {
     return Ok(this.inner);
   }
 
-  public and<O extends Option<any>>(optb: O): O {
+  public and<U>(optb: SomeType<U>): SomeType<U>;
+  public and(optb: NoneType): NoneType;
+  public and<U>(optb: Option<U>): Option<U> {
     return optb;
   }
 
-  public andThen<O extends Option<any>>(f: (value: T) => O): O {
+  public andThen<U>(f: (value: T) => SomeType<U>): SomeType<U>;
+  public andThen(f: (value: T) => NoneType): NoneType;
+  public andThen<U>(f: (value: T) => Option<U>): Option<U> {
     return f(this.inner);
   }
 
-  public filter(predicate: (value: T) => boolean): this | NoneType {
+  public filter(predicate: (value: T) => boolean): Option<T> {
     if (predicate(this.inner)) return this;
     return None;
   }
 
-  public or<O extends Option<any>>(optb: O): this {
+  public or(optb: Option<T>): this {
     return this;
   }
 
-  public orElse<O extends Option<any>>(f: () => O): this {
+  public orElse(f: () => Option<T>): this {
     return this;
   }
 
-  public xor<U>(optb: SomeType<U>): NoneType;
+  public xor(optb: SomeType<T>): NoneType;
   public xor(optb: NoneType): this;
-  public xor<O extends Option<any>>(optb: O): this | NoneType {
+  public xor(optb: Option<T>): Option<T> {
     return optb.isNone() ? this : None;
   }
 
@@ -256,7 +260,7 @@ export class SomeType<T> implements Option<T> {
   }
 
   public zipWith<U, R>(other: SomeType<U>, f: (t: T, u: U) => R): SomeType<R>;
-  public zipWith<U, R>(other: NoneType, f: (t: T, u: any) => any): NoneType;
+  public zipWith(other: NoneType, f: (t: T, u: any) => any): NoneType;
   public zipWith<U, R>(other: Option<U>, f: (t: T, u: U) => R): Option<R> {
     return other.isSome() ? Some(f(this.inner, other.unwrap())) : None;
   }
@@ -309,7 +313,7 @@ export class NoneType implements Option<never> {
     unreachableUnchecked();
   }
 
-  public map<U>(op: (value: never) => U): NoneType {
+  public map(op: (value: never) => any): NoneType {
     return None;
   }
 
@@ -333,11 +337,11 @@ export class NoneType implements Option<never> {
     return Err(err());
   }
 
-  public and<O extends Option<any>>(optb: O): this {
+  public and(optb: Option<any>): this {
     return this;
   }
 
-  public andThen<O extends Option<any>>(f: (value: never) => O): this {
+  public andThen(f: (value: never) => Option<any>): this {
     return this;
   }
 
@@ -345,17 +349,21 @@ export class NoneType implements Option<never> {
     return None;
   }
 
-  public or<O extends Option<any>>(optb: O): O {
+  public or<T>(optb: SomeType<T>): SomeType<T>;
+  public or(optb: NoneType): NoneType;
+  public or<T>(optb: Option<T>): Option<T> {
     return optb;
   }
 
-  public orElse<O extends Option<any>>(f: () => O): O {
+  public orElse<T>(f: () => SomeType<T>): SomeType<T>;
+  public orElse(f: () => NoneType): NoneType;
+  public orElse<T>(f: () => Option<T>): Option<T> {
     return f();
   }
 
-  public xor<U>(optb: SomeType<U>): SomeType<U>;
+  public xor<T>(optb: SomeType<T>): SomeType<T>;
   public xor(optb: NoneType): NoneType;
-  public xor<O extends Option<any>>(optb: O): O | NoneType {
+  public xor<T>(optb: Option<T>): Option<T> {
     return optb.isSome() ? optb : None;
   }
 
