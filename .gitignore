@@ -12,6 +12,9 @@
 dist
 esm
 
+# ENV
+.env*
+
 # CMD
 cmd
 
