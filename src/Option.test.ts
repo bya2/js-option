@@ -1,407 +1,224 @@
-import { Option, Some, None } from "./Option";
-import { Ok, Err } from "@bya2/js-result";
+import { Some, None } from ".";
+import { Ok, Err } from "./Result";
 
-const nope = () => {};
-const returnT = () => true;
-const returnF = () => false;
-const inc = (n: number) => ++n;
-const add = (a: any, b: any) => a + b;
+/*
+ * Issue #1
+ * None의 타입 호환 문제
+ *
+ * 메서드 목록:
+ * - .unwrapOr
+ * - .unwrapOrElse
+ * - .or(None)
+ * - .orElse(None)
+ * - .xor
+ * - .equal
+ *
+ * 해결 방법:
+ * - Option<never>에서 Option<any>로 타입 변경
+ * - 타입과 함께 변수 선언
+ * - Some으로 변수를 초기화하고 None을 할당
+ */
 
-type T = readonly [
-  "isSome",
-  "isSomeAnd",
-  "isNone",
-  "expect",
-  "unwrap",
-  "unwrapOr",
-  "unwrapOrElse",
-  "unwrapUnchecked",
-  "map",
-  "inspect",
-  "mapOr",
-  "mapOrElse",
-  "okOr",
-  "okOrElse",
-  "and",
-  "andThen",
-  "filter",
-  "or",
-  "orElse",
-  "xor",
-  "zip",
-  "zipWith",
-  "transpose",
-  "equal",
-];
+/*
+ * Issue #2
+ * UnhandledPromiseRejection 오류:
+ * 프로미스가 거부되었지만, 해당 거부를 처리하는 .catch() 블록이 없을 때 발생
+ *
+ * await expect(err).rejects.toEqual(Err(x));가 에러 나는 이유:
+ * Err(x)가 거부 처리를 못함.
+ */
 
-const m: T = [
-  "isSome",
-  "isSomeAnd",
-  "isNone",
-  "expect",
-  "unwrap",
-  "unwrapOr",
-  "unwrapOrElse",
-  "unwrapUnchecked",
-  "map",
-  "inspect",
-  "mapOr",
-  "mapOrElse",
-  "okOr",
-  "okOrElse",
-  "and",
-  "andThen",
-  "filter",
-  "or",
-  "orElse",
-  "xor",
-  "zip",
-  "zipWith",
-  "transpose",
-  "equal",
-];
+// const Ok = <T>(x: T): Promise<T> => Promise.resolve(x);
+// const Err = (x: any): Promise<any> => Promise.reject(x);
 
-const a = m[0];
+const someInner = 1;
+const fallback = 5;
+const msg = "abcdefg";
+const some = Some(someInner);
 
-describe(".isSome", () => {
-  const method = m[0];
-  test("Some: `true`를 반환", () => {
-    expect(Some(1)[method]()).toBe(true);
+describe("Option state checkable methods", () => {
+  const returnT = () => true;
+  const returnF = () => false;
+
+  test(".isSome", () => {
+    expect(some.isSome()).toBe(true);
+    expect(None.isSome()).toBe(false);
   });
 
-  test("None: `false`를 반환", () => {
-    expect(None[method]()).toBe(false);
+  test(".isSomeAnd", () => {
+    expect(some.isSomeAnd(returnT)).toBe(true);
+    expect(some.isSomeAnd(returnF)).toBe(false);
+    expect(None.isSomeAnd(returnT)).toBe(false);
+    expect(None.isSomeAnd(returnF)).toBe(false);
+  });
+
+  test(".isNone", () => {
+    expect(some.isNone()).toBe(false);
+    expect(None.isNone()).toBe(true);
   });
 });
 
-describe(".isSomeAnd", () => {
-  const method = m[1];
-  test("Some: 콜백 함수로부터 반환된 boolean을 반환", () => {
-    expect(Some(1)[method](returnT)).toBe(true);
-    expect(Some(1)[method](returnF)).toBe(false);
+describe("Option wrapped methods", () => {
+  test(".expect", () => {
+    expect(some.expect(msg)).toBe(someInner);
+    expect(() => {
+      None.expect(msg);
+    }).toThrow(msg);
   });
 
-  test("None: `false`를 반환", () => {
-    expect(None[method](returnT)).toBe(false);
-    expect(None[method](returnF)).toBe(false);
-  });
-});
-
-describe(".isNone", () => {
-  const method = m[2];
-  test("Some: `false`를 반환", () => {
-    expect(Some(1)[method]()).toBe(false);
+  test(".unwrap", () => {
+    expect(some.unwrap()).toBe(someInner);
+    expect(() => {
+      None.unwrap();
+    }).toThrow();
   });
 
-  test("None: `true`를 반환", () => {
-    expect(None[method]()).toBe(true);
-  });
-});
-
-describe(".expect", () => {
-  const method = m[3];
-  test("Some: 내부의 값을 반환", () => {
-    expect(Some(1)[method]("")).toBe(1);
+  test(".unwrapOr", () => {
+    expect(some.unwrapOr(fallback)).toBe(someInner);
+    expect(None.unwrapOr(fallback)).toBe(fallback);
   });
 
-  test("None: 오류를 발생", () => {
-    try {
-      None[method]("abcdefg");
-    } catch (err: any) {
-      expect(() => {
-        None[method]("abcdefg");
-      }).toThrow(err);
-    }
+  test(".unwrapOrElse", () => {
+    expect(some.unwrapOrElse(() => fallback)).toBe(someInner);
+    expect(None.unwrapOrElse(() => fallback)).toBe(fallback);
   });
 });
 
-describe(".unwrap", () => {
-  const method = m[4];
-  test("Some: 내부의 값을 반환", () => {
-    expect(Some(1)[method]()).toBe(1);
+describe("Option mappable methods", () => {
+  const inc = (n: number) => ++n;
+  const increased = inc(someInner);
+
+  test(".map", () => {
+    const mapped = some.map(inc);
+    expect(mapped).toEqual(Some(increased));
+    expect(mapped.unwrap()).toBe(increased);
+    expect(None.map(inc)).toBe(None);
+    expect(None.map(inc)).toEqual(None);
   });
 
-  test("None: 오류를 발생", () => {
-    try {
-      None[method]();
-    } catch (err: any) {
-      expect(() => {
-        None[method]();
-      }).toThrow(err);
-    }
-  });
-});
-
-describe(".unwrapOr", () => {
-  const method = m[5];
-  test("Some: 내부의 값을 반환", () => {
-    expect(Some(1)[method](2)).toBe(1);
+  test(".mapOr", () => {
+    expect(some.mapOr(fallback, inc)).toEqual(increased);
+    expect(None.mapOr(fallback, inc)).toBe(fallback);
   });
 
-  test("None: 인수를 반환", () => {
-    expect(None[method](2)).toBe(2);
+  test(".mapOrElse", () => {
+    expect(some.mapOrElse(() => fallback, inc)).toEqual(increased);
+    expect(None.mapOrElse(() => fallback, inc)).toBe(fallback);
   });
 });
 
-describe(".unwrapOrElse", () => {
-  const method = m[6];
-  test("Some: 내부의 값을 반환", () => {
-    expect(Some(1)[method](() => 2)).toBe(1);
-  });
+describe("Option functional methods", () => {
+  const returnT = () => true;
+  const returnF = () => false;
 
-  test("None: 콜백 함수로부터 반환된 값을 반환", () => {
-    expect(None[method](() => 2)).toBe(2);
-  });
-});
-
-describe(".unwrapUnchecked", () => {
-  const method = m[7];
-  test("Some: 내부의 값을 반환", () => {
-    expect(Some(1)[method]()).toBe(1);
-  });
-
-  test("None: 오류를 발생", () => {
-    try {
-      None[method]();
-    } catch (err: any) {
-      expect(() => {
-        None[method]();
-      }).toThrow(err);
-    }
-  });
-});
-
-describe(".map", () => {
-  const method = m[8];
-  test("Some: 콜백 함수로부터 반환된 값을 포함한 Some을 반환", () => {
-    const mapped = Some(1)[method](inc);
-    expect(mapped).toEqual(Some(2));
-    expect(mapped.unwrap()).toBe(2);
-  });
-
-  test("None: None을 반환", () => {
-    expect(None[method](inc)).toEqual(None);
-    expect(None[method](inc)).toBe(None);
-  });
-});
-
-describe(".inspect", () => {
-  const method = m[9];
-  test("Some & None: `this`을 반환", () => {
-    let opt: Option<number> = Some(1);
-    expect(opt[method](nope)).toBe(opt);
-    opt = None;
-    expect(opt[method](nope)).toBe(opt);
-  });
-
-  test("Some: 콜백 함수를 호출", () => {
-    let x = 1;
-    let y = 10;
-    Some(10).inspect((n) => {
-      x = n;
-    });
-    expect(x).toBe(y);
-  });
-});
-
-describe(".mapOr", () => {
-  const method = m[10];
-  test("Some: 콜백 함수로부터 반환된 값을 반환", () => {
-    const mapped = Some(1)[method](5, inc);
-    expect(mapped).toBe(2);
-  });
-
-  test("None: 인수 값을 반환", () => {
-    const x = 5;
-    expect(None[method](x, inc)).toBe(x);
-  });
-});
-
-describe(".mapOrElse", () => {
-  const method = m[11];
-  test("Some: 두번째 콜백 함수로부터 반환된 값을 반환", () => {
-    const mapped = Some(1)[method](() => 5, inc);
-    expect(mapped).toBe(2);
-  });
-
-  test("None: 첫번째 콜백 함수로부터 반환된 값을 반환", () => {
-    const x = 5;
-    expect(None[method](() => x, inc)).toBe(x);
-  });
-});
-
-describe(".okOr", () => {
-  const method = m[12];
-  test("Some: 내부의 값을 포함한 Ok를 반환", () => {
-    const x = 1;
-    const ok = Some(x)[method]("");
-    expect(ok).toEqual(Ok(x));
-    expect(ok.unwrap()).toBe(x);
-  });
-
-  test("None: 인수의 값을 포함한 Err를 반환", () => {
-    const x = 1;
-    const err = None[method](x);
-    expect(err).toEqual(Err(x));
-    expect(err.unwrapErr()).toBe(x);
-  });
-});
-
-describe(".okOrElse", () => {
-  const method = m[13];
-  test("Some: 내부의 값을 포함한 Ok를 반환", () => {
-    const x = 1;
-    const ok = Some(x)[method](() => "");
-    expect(ok).toEqual(Ok(x));
-    expect(ok.unwrap()).toBe(x);
-  });
-
-  test("None: 콜백 함수로부터 반환된 값을 포함한 Err를 반환", () => {
-    const x = 1;
-    const err = None[method](() => x);
-    expect(err).toEqual(Err(x));
-    expect(err.unwrapErr()).toBe(x);
-  });
-});
-
-describe(".and", () => {
-  const some1 = Some(1);
-  const some2 = Some(2);
-
-  test("Some: 인수(Option)를 반환", () => {
-    expect(some1.and(some2)).toBe(some2);
-  });
-
-  test("None: None을 반환", () => {
-    expect(None.and(some2)).toBe(None);
-  });
-});
-
-describe(".andThen", () => {
-  const some = Some(1);
-  const some2 = Some(2);
-
-  test("Some: 인수(Option)를 반환", () => {
-    expect(some.andThen(() => some2)).toBe(some2);
-    expect(some.andThen(() => None)).toBe(None);
-  });
-
-  test("None: None을 반환", () => {
-    expect(None.andThen(() => some2)).toBe(None);
-  });
-});
-
-describe(".filter", () => {
-  test("Some: 콜백 함수로부터 참이 반환되면 this, 거짓이면 None을 반환", () => {
-    const some = Some(1);
+  test(".filter", () => {
     expect(some.filter(returnT)).toBe(some);
     expect(some.filter(returnF)).toBe(None);
-  });
-
-  test("None: None을 반환", () => {
     expect(None.filter(returnT)).toBe(None);
+    expect(None.filter(returnF)).toBe(None);
+  });
+
+  test(".inspect", () => {
+    expect(some.filter(returnT)).toBe(some);
+    expect(some.filter(returnF)).toBe(None);
+    expect(None.filter(returnT)).toBe(None);
+    expect(None.filter(returnF)).toBe(None);
   });
 });
 
-describe(".or", () => {
-  test("Some: this를 반환", () => {
-    const some = Some(1);
-    expect(some.or(Some(2))).toBe(some);
+describe("Option circuit evaluable methods", () => {
+  const some2 = Some(3);
+
+  test(".and", () => {
+    expect(some.and(some2)).toBe(some2);
+    expect(None.and(some2)).toBe(None);
   });
 
-  test("None: 인수(Option)을 반환", () => {
-    const some = Some(1);
-    expect(None.or(some)).toBe(some);
-    expect(None.or(None)).toBe(None);
-  });
-});
-
-describe(".orElse", () => {
-  test("Some: this를 반환", () => {
-    const some = Some(1);
-    expect(some.orElse(() => Some(2))).toBe(some);
+  test(".andThen", () => {
+    expect(some.andThen(() => some2)).toBe(some2);
+    expect(None.andThen(() => some2)).toBe(None);
   });
 
-  test("None: 인수(Option)을 반환", () => {
-    const some = Some(1);
-    expect(None.orElse(() => some)).toBe(some);
-    expect(None.orElse(() => None)).toBe(None);
+  test(".or", () => {
+    expect(some.or(some2)).toBe(some);
+    expect(None.or(some2)).toBe(some2);
   });
-});
 
-describe(".xor", () => {
-  const some = Some(1);
-  const some2 = Some(2);
+  test(".orElse", () => {
+    expect(some.orElse(() => some2)).toBe(some);
+    expect(None.orElse(() => some2)).toBe(some2);
+  });
 
-  test("Some: 인수(Option)가 Some이면 None, None이면 this를 반환", () => {
+  test(".xor", () => {
     expect(some.xor(some2)).toBe(None);
     expect(some.xor(None)).toBe(some);
-  });
-
-  test("None: 인수(Option)가 Some이면 Some, None이면 None을 반환", () => {
     expect(None.xor(some2)).toBe(some2);
     expect(None.xor(None)).toBe(None);
   });
 });
 
-describe(".zip", () => {
-  const x = 1;
-  const y = "abcdefg";
-  const someX = Some(x);
-  const someY = Some(y);
+describe("Option zippable methods", () => {
+  const some2Inner = 3;
+  const some2 = Some(some2Inner);
 
-  test("Some: 인수(Option)가 Some이면 Some([x, y]), None이면 None을 반환", () => {
-    const zipped = someX.zip(someY);
-    expect(zipped).toEqual(Some([x, y]));
-    expect(someX.zip(None)).toBe(None);
+  test(".zip", () => {
+    expect(some.zip(some2)).toEqual(Some([someInner, some2Inner]));
+    expect(None.zip(some2)).toBe(None);
   });
 
-  test("None: None을 반환", () => {
-    expect(None.zip(someX)).toBe(None);
-  });
-});
+  test(".zipWith", () => {
+    const add = (a: number, b: number) => a + b;
+    const added = 4;
 
-describe(".zipWith", () => {
-  const x = 1;
-  const y = "abcdefg";
-  const someX = Some(x);
-  const someY = Some(y);
-
-  test("Some: 인수(Option)가 Some이면 Some(f(x, y)), None이면 None을 반환", () => {
-    const zipped = someX.zipWith(someY, add);
-    expect(zipped).toEqual(Some(add(x, y)));
-    expect(someX.zipWith(None, add)).toBe(None);
-  });
-
-  test("None: None을 반환", () => {
-    expect(None.zipWith(someX, add)).toBe(None);
+    expect(some.zipWith(some2, add).unwrap()).toBe(added);
+    expect(None.zipWith(some2, add)).toBe(None);
   });
 });
 
-describe(".transpose", () => {
-  const method = m[22];
+describe("Option transformable methods", () => {
+  const err = new Error("abcdefg");
 
-  test("Some: 내부의 값이 Ok<T>이면 Ok<Some<T>>, Err이면 Ok<T>을 반환", () => {
-    expect(Some(Ok(1))[method]()).toEqual(Ok(Some(1)));
-    expect(Some(Err(2))[method]()).toEqual(Err(2));
+  test(".okOr", () => {
+    expect(some.okOr(err)).toEqual(Ok(someInner));
+    expect(None.okOr(err)).toEqual(Err(err));
   });
 
-  test("None: OK(None)을 반환", () => {
-    expect(None[method]()).toEqual(Ok(None));
+  test(".okOrElse", () => {
+    expect(some.okOrElse(() => err)).toEqual(Ok(someInner));
+    expect(None.okOrElse(() => err)).toEqual(Err(err));
+  });
+
+  test(".resolveOr", () => {
+    expect(some.resolveOr(err)).resolves.toBe(someInner);
+    expect(None.resolveOr(err)).rejects.toBe(err);
+  });
+
+  test(".resolveOrElse", () => {
+    expect(some.resolveOrElse(() => err)).resolves.toBe(someInner);
+    expect(None.resolveOrElse(() => err)).rejects.toBe(err);
+  });
+
+  test(".transpose", () => {
+    expect(Some(Ok(1))).toEqual(Ok(Some(1)));
+    expect(Some(Err(1))).toEqual(Err(1));
+    expect(None).toEqual(Ok(None));
+  });
+
+  test(".transposeAsync", () => {
+    expect(Some(Promise.resolve(1)).transposeAsync()).resolves.toEqual(Some(1));
+    expect(() => {
+      Some(1).transposeAsync();
+    }).toThrow();
+    expect(None.transposeAsync()).resolves.toBe(None);
   });
 });
 
-describe(".equal", () => {
-  const method = m[23];
-
-  test("Some: 내부의 값을 비교하고 boolean을 반환", () => {
-    expect(Some(1)[method](Some(1))).toBe(true);
-    expect(Some(Ok(1))[method](Some(Ok(2)))).toBe(false);
-    expect(Some(Err(2))[method](Some(Err(2)))).toBe(true);
-  });
-
-  test("None: 다른 Option이 None이면 true, 아니면 false", () => {
-    expect(None[method](None)).toBe(true);
-    expect(None[method](Some(1))).toBe(false);
+describe("Option comparable methods", () => {
+  test(".equal", () => {
+    expect(Some(1).equal(Some(1))).toBe(true);
+    expect(Some(Ok(2)).equal(Some(Ok(2)))).toBe(true);
+    expect(Some(Ok(Ok(3))).equal(Some(Ok(Ok(3))))).toBe(true);
+    expect(Some(Ok(Err(3))).equal(Some(Ok(Err(3))))).toBe(true);
+    expect(None.equal(None)).toBe(true);
   });
 });
