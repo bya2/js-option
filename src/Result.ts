@@ -1,5 +1,5 @@
-import { type Option, TSome, TNone, Some, None } from "@/Option";
-import { equal } from "@/helper";
+import { type Option, TSome, Some, None } from "@repo/option";
+import { isEqual } from "@/helper";
 import { throwUnreachableUnchecked, throwUnwrapFailed } from "@/error";
 
 export interface Result<T, E>
@@ -302,7 +302,7 @@ export class TOk<T> implements Result<T, any> {
   }
 
   equal(other: Result<T, any>): boolean {
-    return other instanceof TOk && equal(this.#inner, other.unwrap());
+    return other instanceof TOk && isEqual(this.#inner, other.unwrap());
   }
 }
 
@@ -415,7 +415,7 @@ export class TErr<E> implements Result<any, E> {
   }
 
   equal(other: Result<any, E>): boolean {
-    return other instanceof TErr && equal(this.#inner, other.unwrapErr());
+    return other instanceof TErr && isEqual(this.#inner, other.unwrapErr());
   }
 }
 
