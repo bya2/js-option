@@ -1,23 +1,29 @@
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+# Editor configs
+.vscode/
 
-.yarn/cache
-.pnp.*
+# Dependency directories
+node_modules
+_node_modules
 
-# DIST
+# Coverage directories
+coverage
+
+# Compiled code
 dist
+lib
 esm
 
-# ENV
-.env*
+# Logs
+*.log
+*debug.log*
+logs
 
-# CMD
-cmd
+# Ignore npm and yarn's lockfiles
+package-lock.json
+npm-lockfile.json
+yarn.lock
 
 # ETC
-*.log
-coverage
+*.env
+*.local
+
