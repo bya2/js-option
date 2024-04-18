@@ -1,2 +1,2 @@
-export * from "./Option";
-export * from "./Result";
+export * from "@repo/option";
+export * from "@repo/result";

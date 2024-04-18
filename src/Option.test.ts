@@ -1,5 +1,5 @@
-import { Some, None } from ".";
-import { Ok, Err } from "./Result";
+import { Some, None } from "@repo/option";
+import { Ok, Err } from "@repo/result";
 
 /*
  * Issue #1

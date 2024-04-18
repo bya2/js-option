@@ -1,5 +1,5 @@
-import { Ok, Err } from "./Result";
-import { Some, None } from "./Option";
+import { Ok, Err } from "@repo/result";
+import { Some, None } from "@repo/option";
 
 const okInner = 1;
 const errInner = "a";
