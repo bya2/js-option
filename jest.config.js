@@ -1,8 +1,8 @@
 import { pathsToModuleNameMapper } from "ts-jest";
-import { compilerOptions } from "./tsconfig.json" assert { type: "json" };
+import tsconfig from "./tsconfig.json" assert { type: "json" };
 
 /** @type {import('jest').Config} */
-export default {
+const config = {
   preset: "ts-jest",
 
   testEnvironment: "node",
@@ -11,7 +11,7 @@ export default {
 
   moduleDirectories: ["node_modules"],
   moduleFileExtensions: ["ts", "js", "json", "node"],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+  moduleNameMapper: pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {
     prefix: "<rootDir>/",
   }),
 
@@ -24,5 +24,6 @@ export default {
 
   verbose: true,
   errorOnDeprecated: false,
-  slowTestThreshold: 5,
 };
+
+export default config;
