@@ -1,6 +1,6 @@
 {
   "name": "@bya2/rusty-container-api",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Use rust-like optional and error-handling types API.",
   "bugs": "https://github.com/bya2/rusty-container-api/issues",
   "repository": {
