@@ -1,11 +1,11 @@
 {
   "name": "@bya2/rusty-container-api",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Use rust-like optional and error-handling types API.",
   "bugs": "https://github.com/bya2/rusty-container-api/issues",
   "repository": {
     "type": "git",
-    "url": "bya2/rusty-container-api"
+    "url": "https://github.com/bya2/rusty-container-api.git"
   },
   "license": "MIT",
   "author": "Jinhyeong Lee <byaa1972@gmail.com> (https://github.com/bya2)",
@@ -29,8 +29,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "publish": "pnpm publish --access public",
-    "publish:force": "pnpm publish --access public --no-git-checks --force",
+    "compile": "tsc",
     "test": "jest -o",
     "test:all": "jest",
     "test:coverage": "jest --coverage",
@@ -51,5 +50,8 @@
     "tsup": "8.0.2",
     "typescript": "^5.4.5"
   },
-  "packageManager": "pnpm@8.9.0"
+  "packageManager": "pnpm@8.9.0",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
 }
