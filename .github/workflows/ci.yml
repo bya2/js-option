@@ -1,4 +1,4 @@
-name: ci
+name: CI
 
 on:
   push:
@@ -26,19 +26,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: ["Test"]
     permissions:
-      contents: write
+      contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3.0.0
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: ".nvmrc"
           cache: pnpm
-          registry-url: https://npm.pkg.github.com
 
       - run: pnpm i
       - run: pnpm build
-      - run: pnpm publish
+      - run: pnpm publish --access public --no-git-checks
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
