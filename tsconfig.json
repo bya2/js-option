@@ -1,12 +1,13 @@
 {
-  "extends": "../config/tsconfig.base.json",
+  "extends": "./tsconfig.esm.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "target": "ES6",
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "outDir": "dist"
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@repo/option": ["src/Option.ts"],
+      "@repo/result": ["src/Result.ts"]
+    }
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.test.ts"]
+  "exclude": ["node_modules", "dist"]
 }

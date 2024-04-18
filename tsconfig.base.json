@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "allowUmdGlobalAccess": true,
+
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": true,
+
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+
+    "verbatimModuleSyntax": false // error: #14047 (https://github.com/jestjs/jest/issues/14047)
+  }
+}
