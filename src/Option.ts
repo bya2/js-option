@@ -53,7 +53,7 @@ interface IWrapped<T> {
    * [`Option`]이 `Some`이면 내부 값을 반환하고, `None`이면 제공된 값을 반환합니다.
    * @param value
    */
-  unwrapOr(val: T): T;
+  unwrapOr(value: T): T;
 
   /**
    * [`Option`]이 `Some`이면 내부 값을 반환하고, `None`이면 콜백 함수의 결과값을 반환합니다.
@@ -229,7 +229,7 @@ export class TSome<T> implements Option<T> {
     return this.#inner;
   }
 
-  unwrapOr(val: T): T {
+  unwrapOr(value: T): T {
     return this.#inner;
   }
 
