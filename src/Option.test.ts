@@ -1,36 +1,6 @@
 import { Some, None } from "@repo/option";
 import { Ok, Err } from "@repo/result";
 
-/*
- * Issue #1
- * None의 타입 호환 문제
- *
- * 메서드 목록:
- * - .unwrapOr
- * - .unwrapOrElse
- * - .or(None)
- * - .orElse(None)
- * - .xor
- * - .equal
- *
- * 해결 방법:
- * - Option<never>에서 Option<any>로 타입 변경
- * - 타입과 함께 변수 선언
- * - Some으로 변수를 초기화하고 None을 할당
- */
-
-/*
- * Issue #2
- * UnhandledPromiseRejection 오류:
- * 프로미스가 거부되었지만, 해당 거부를 처리하는 .catch() 블록이 없을 때 발생
- *
- * await expect(err).rejects.toEqual(Err(x));가 에러 나는 이유:
- * Err(x)가 거부 처리를 못함.
- */
-
-// const Ok = <T>(x: T): Promise<T> => Promise.resolve(x);
-// const Err = (x: any): Promise<any> => Promise.reject(x);
-
 const someInner = 1;
 const fallback = 5;
 const msg = "abcdefg";

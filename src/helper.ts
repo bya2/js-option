@@ -1,7 +1,6 @@
 import _isEqual from "lodash.isequal";
-import { type Option, TSome, Some } from "@repo/option";
-import { type Result, TOk, TErr, Err } from "@repo/result";
-import { throwUnreachableUnchecked } from "@/error";
+import { TSome } from "@repo/option";
+import { TOk, TErr } from "@repo/result";
 
 /**
  * [`Option`] 혹은 [`Result`]인 `a`와 `b` 값이 동등한 지 비교합니다.
