@@ -425,6 +425,33 @@ export class TNone implements Option<any> {
   }
 }
 
+/**
+ * [`Option<T>`] 타입의 Some 객체를 생성합니다.
+ * @param expr
+ */
 export const Some = <T>(expr: T): Option<T> => new TSome(expr);
 
+/**
+ * [`Option<T>`] 타입의 None 객체를 생성합니다.
+ */
 export const None: Option<any> = new TNone();
+
+/**
+ * 전역 상에 [`Option<T>`] 타입의 객체 생성자들을 초기화합니다.
+ */
+export const defineOption = (): void => {
+  if ("Some" in globalThis || "None" in globalThis) {
+    throw new Error(
+      "Define Failed: `Some` or `None` functions are already defined in the global scope."
+    );
+  }
+
+  Object.defineProperties(globalThis, {
+    Some: {
+      value: Some,
+    },
+    None: {
+      value: None,
+    },
+  });
+};

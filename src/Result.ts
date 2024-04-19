@@ -419,6 +419,32 @@ export class TErr<E> implements Result<any, E> {
   }
 }
 
+/**
+ * [`Result<T, E>`] 타입의 Ok 객체를 생성합니다.
+ * @param expr
+ */
 export const Ok = <T, E>(expr: T): Result<T, E> => new TOk(expr);
 
+/**
+ * [`Result<T, E>`] 타입의 Err 객체를 생성합니다.
+ * @param expr
+ */
 export const Err = <T, E>(expr: E): Result<T, E> => new TErr(expr);
+
+/**
+ * 전역 상에 [`Result<T, E>`] 타입의 객체 생성자들을 초기화합니다.
+ */
+export const defineResult = (): void => {
+  if ("Some" in globalThis || "None" in globalThis) {
+    throw new Error();
+  }
+
+  Object.defineProperties(globalThis, {
+    Ok: {
+      value: Ok,
+    },
+    Err: {
+      value: Err,
+    },
+  });
+};
