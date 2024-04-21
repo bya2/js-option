@@ -1,10 +1,6 @@
 import { type Result, TOk, TErr, Ok, Err } from "@repo/result";
 import { isEqual } from "@/helper";
-import {
-  throwUnwrapFailed,
-  throwUnreachableUnchecked,
-  throwExpectFailed,
-} from "@/error";
+import { UnreachableCodeError, FailureError } from "@/error";
 
 export interface Option<T>
   extends IStateCheckable<T>,
@@ -305,13 +301,12 @@ export class TSome<T> implements Option<T> {
   transpose<E>(): Result<Option<T>, E> {
     if (this.#inner instanceof TOk) return Ok(Some(this.#inner.unwrap()));
     if (this.#inner instanceof TErr) return this.#inner;
-    throwUnreachableUnchecked();
+    throw UnreachableCodeError.variantUnchecked();
   }
 
   transposeAsync<R>(): Promise<Option<R>> {
-    return this.#inner instanceof Promise
-      ? this.#inner.then(Some)
-      : throwUnreachableUnchecked();
+    if (this.#inner instanceof Promise) return this.#inner.then(Some);
+    throw UnreachableCodeError.typeUnchecked();
   }
 
   equal(other: Option<T>): boolean {
@@ -333,11 +328,11 @@ export class TNone implements Option<any> {
   }
 
   expect(msg: string): never {
-    throwExpectFailed(msg);
+    throw FailureError.expectFailed(msg);
   }
 
   unwrap(): never {
-    throwUnwrapFailed("called `unwrap()` on a `None` value");
+    throw FailureError.unwrapFailed("called `unwrap()` on a `None` value");
   }
 
   unwrapOr<T>(value: T): T {
@@ -441,8 +436,8 @@ export const None: Option<any> = new TNone();
  */
 export const defineOption = (): void => {
   if ("Some" in globalThis || "None" in globalThis) {
-    throw new Error(
-      "Define Failed: `Some` or `None` functions are already defined in the global scope."
+    throw FailureError.bindingFailed(
+      "`Some` or `None` functions are already defined in the global scope."
     );
   }
 

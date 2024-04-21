@@ -1,6 +1,6 @@
 import { type Option, TSome, Some, None } from "@repo/option";
 import { isEqual } from "@/helper";
-import { throwUnreachableUnchecked, throwUnwrapFailed } from "@/error";
+import { UnreachableCodeError, FailureError } from "@/error";
 
 export interface Result<T, E>
   extends IStateCheckable<T, E>,
@@ -217,7 +217,7 @@ export class TOk<T> implements Result<T, any> {
   }
 
   expectErr(msg: string): never {
-    throwUnwrapFailed(msg, this.#inner);
+    throw FailureError.unwrapFailed(msg, this.#inner);
   }
 
   unwrap(): T {
@@ -225,7 +225,10 @@ export class TOk<T> implements Result<T, any> {
   }
 
   unwrapErr(): never {
-    throwUnwrapFailed("called `unwrapErr()` on an `Ok` value", this.#inner);
+    throw FailureError.unwrapFailed(
+      "called `unwrapErr()` on an `Ok` value",
+      this.#inner
+    );
   }
 
   unwrapOr(value: T): T {
@@ -292,13 +295,12 @@ export class TOk<T> implements Result<T, any> {
   transpose(): Option<Result<T, any>> {
     if (this.#inner instanceof TSome) return Some(Ok(this.#inner.unwrap()));
     if (this.#inner === None) return None;
-    throwUnreachableUnchecked();
+    throw UnreachableCodeError.variantUnchecked();
   }
 
   transposeAsync(): Promise<Result<T, any>> {
-    return this.#inner instanceof Promise
-      ? this.#inner.then(Ok)
-      : throwUnreachableUnchecked();
+    if (this.#inner instanceof Promise) return this.#inner.then(Ok);
+    throw UnreachableCodeError.typeUnchecked();
   }
 
   equal(other: Result<T, any>): boolean {
@@ -330,7 +332,7 @@ export class TErr<E> implements Result<any, E> {
   }
 
   expect(msg: string): never {
-    throwUnwrapFailed(msg, this.#inner);
+    throw FailureError.unwrapFailed(msg, this.#inner);
   }
 
   expectErr(msg: string): E {
@@ -338,7 +340,10 @@ export class TErr<E> implements Result<any, E> {
   }
 
   unwrap(): never {
-    throwUnwrapFailed("called `unwrap()` on an `Err` value", this.#inner);
+    throw FailureError.unwrapFailed(
+      "called `unwrap()` on an `Err` value",
+      this.#inner
+    );
   }
 
   unwrapErr(): E {
@@ -435,8 +440,10 @@ export const Err = <T, E>(expr: E): Result<T, E> => new TErr(expr);
  * 전역 상에 [`Result<T, E>`] 타입의 객체 생성자들을 초기화합니다.
  */
 export const defineResult = (): void => {
-  if ("Some" in globalThis || "None" in globalThis) {
-    throw new Error();
+  if ("Ok" in globalThis || "Err" in globalThis) {
+    throw FailureError.bindingFailed(
+      "`Ok` or `Err` functions are already defined in the global scope."
+    );
   }
 
   Object.defineProperties(globalThis, {
